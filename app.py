@@ -122,7 +122,7 @@ def main():
 
     if search_type == "Name Search":
         st.subheader("Search by Name")
-        name_input = st.text_input("Enter Name (Exact Match)", placeholder="e.g., DAOUD YAQUB")
+        name_input = st.text_input("Enter Name (Exact Match)", placeholder="e.g., JOHN DOE")
         if st.button("Search Name"):
             search_performed = True
             if name_input:
@@ -132,7 +132,7 @@ def main():
 
     elif search_type == "ID Search":
         st.subheader("Search by ID")
-        id_input = st.text_input("Enter ID Number", placeholder="e.g., 530946649")
+        id_input = st.text_input("Enter ID Number", placeholder="e.g., 5303676649")
         if st.button("Search ID"):
             search_performed = True
             if id_input:
@@ -142,7 +142,7 @@ def main():
 
     elif search_type == "Phone Number Search":
         st.subheader("Search by Phone Number")
-        phone_input = st.text_input("Enter Mobile Number", placeholder="e.g., 971-50-6544384")
+        phone_input = st.text_input("Enter Mobile Number", placeholder="e.g., 971-12-3456789")
         if st.button("Search Phone"):
             search_performed = True
             if phone_input:
