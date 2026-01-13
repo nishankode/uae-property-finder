@@ -123,6 +123,7 @@ def main():
     if search_type == "Name Search":
         st.subheader("Search by Name")
         name_input = st.text_input("Enter Name (Exact Match)", placeholder="e.g., JOHN DOE")
+        name_input = name_input.upper()
         if st.button("Search Name"):
             search_performed = True
             if name_input:
