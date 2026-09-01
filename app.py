@@ -79,17 +79,7 @@ def is_indian_mobile_number(mobile):
         return False
 
     digits = re.sub(r"\D", "", str(mobile))
-
-    if len(digits) == 10:
-        return digits[0] in "6789"
-
-    if len(digits) == 12 and digits.startswith("91"):
-        return digits[2] in "6789"
-
-    if len(digits) == 14 and digits.startswith("0091"):
-        return digits[4] in "6789"
-
-    return False
+    return digits.startswith("91")
 
 def filter_indian_mobile_numbers(df):
     return df[df['mobile'].apply(is_indian_mobile_number)]
@@ -137,7 +127,6 @@ def main():
         "Choose a search method:",
         ("Name Search", "ID Search", "Phone Number Search", "Property Search", "Indian Mobile Number Filter")
     )
-    indian_mobile_only = st.sidebar.checkbox("Indian mobile numbers only")
 
     results = pd.DataFrame()
     search_performed = False
@@ -195,6 +184,8 @@ def main():
         with col4:
             unit_no = st.text_input("Unit Number (Ends with)", placeholder="e.g., 06")
 
+        indian_mobile_only = st.checkbox("Filter by Indian mobile numbers only")
+
         if st.button("Search Property"):
             search_performed = True
             if prop_name:
@@ -212,6 +203,8 @@ def main():
                     transaction_date=_date, 
                     unit_number=_unit
                 )
+                if indian_mobile_only:
+                    results = filter_indian_mobile_numbers(results)
             else:
                 st.warning("Property Name is required for this search.")
 
@@ -223,9 +216,6 @@ def main():
 
     # Display Results
     if search_performed:
-        if indian_mobile_only and not results.empty:
-            results = filter_indian_mobile_numbers(results)
-
         st.markdown("---")
         st.subheader("Results")
         if not results.empty:
