@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import warnings
+import re
 
 # Configuration
 st.set_page_config(layout="wide", page_title="UAE Real Estate Search")
@@ -73,6 +74,26 @@ def search_phone(mobile, df):
     matches = df[df['mobile'] == mobile]
     return matches
 
+def is_indian_mobile_number(mobile):
+    if pd.isna(mobile):
+        return False
+
+    digits = re.sub(r"\D", "", str(mobile))
+
+    if len(digits) == 10:
+        return digits[0] in "6789"
+
+    if len(digits) == 12 and digits.startswith("91"):
+        return digits[2] in "6789"
+
+    if len(digits) == 14 and digits.startswith("0091"):
+        return digits[4] in "6789"
+
+    return False
+
+def filter_indian_mobile_numbers(df):
+    return df[df['mobile'].apply(is_indian_mobile_number)]
+
 def search_property(property_name=None, df=None, size_sqmt=None, size_sqft=None, transaction_date=None, unit_number=None):
     all_matches = df[
         (df['master_project'] == property_name) |
@@ -114,8 +135,9 @@ def main():
     st.sidebar.title("Search Options")
     search_type = st.sidebar.radio(
         "Choose a search method:",
-        ("Name Search", "ID Search", "Phone Number Search", "Property Search")
+        ("Name Search", "ID Search", "Phone Number Search", "Property Search", "Indian Mobile Number Filter")
     )
+    indian_mobile_only = st.sidebar.checkbox("Indian mobile numbers only")
 
     results = pd.DataFrame()
     search_performed = False
@@ -193,8 +215,17 @@ def main():
             else:
                 st.warning("Property Name is required for this search.")
 
+    elif search_type == "Indian Mobile Number Filter":
+        st.subheader("Filter by Indian Mobile Numbers")
+        if st.button("Show Indian Mobile Numbers"):
+            search_performed = True
+            results = filter_indian_mobile_numbers(df)
+
     # Display Results
     if search_performed:
+        if indian_mobile_only and not results.empty:
+            results = filter_indian_mobile_numbers(results)
+
         st.markdown("---")
         st.subheader("Results")
         if not results.empty:
