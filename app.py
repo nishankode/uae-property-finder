@@ -84,6 +84,10 @@ def is_indian_mobile_number(mobile):
 def filter_indian_mobile_numbers(df):
     return df[df['mobile'].apply(is_indian_mobile_number)]
 
+def filter_indian_country(df):
+    country = df['country'].astype(str).str.strip().str.lower()
+    return df[country.isin(["india", "indian"])]
+
 def search_property(property_name=None, df=None, size_sqmt=None, size_sqft=None, transaction_date=None, unit_number=None):
     all_matches = df[
         (df['master_project'] == property_name) |
@@ -125,7 +129,14 @@ def main():
     st.sidebar.title("Search Options")
     search_type = st.sidebar.radio(
         "Choose a search method:",
-        ("Name Search", "ID Search", "Phone Number Search", "Property Search", "Indian Mobile Number Filter")
+        (
+            "Name Search",
+            "ID Search",
+            "Phone Number Search",
+            "Property Search",
+            "Indian Mobile Number Filter",
+            "Indian Country Filter"
+        )
     )
 
     results = pd.DataFrame()
@@ -185,6 +196,7 @@ def main():
             unit_no = st.text_input("Unit Number (Ends with)", placeholder="e.g., 06")
 
         indian_mobile_only = st.checkbox("Filter by Indian mobile numbers only")
+        indian_country_only = st.checkbox("Filter by country India/Indian only")
 
         if st.button("Search Property"):
             search_performed = True
@@ -205,6 +217,8 @@ def main():
                 )
                 if indian_mobile_only:
                     results = filter_indian_mobile_numbers(results)
+                if indian_country_only:
+                    results = filter_indian_country(results)
             else:
                 st.warning("Property Name is required for this search.")
 
@@ -213,6 +227,12 @@ def main():
         if st.button("Show Indian Mobile Numbers"):
             search_performed = True
             results = filter_indian_mobile_numbers(df)
+
+    elif search_type == "Indian Country Filter":
+        st.subheader("Filter by Country India/Indian")
+        if st.button("Show Indian Country Records"):
+            search_performed = True
+            results = filter_indian_country(df)
 
     # Display Results
     if search_performed:
